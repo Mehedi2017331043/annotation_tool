@@ -1,0 +1,100 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+<body>
+    <div class="card" style="width: 800px; margin: 50px auto; padding: 20px;">
+        <h1>Annotate Document</h1>
+        <p id="doc-text">{{ document.text }}</p>
+        <select id="label-select" required>
+            {% for label in labels %}
+                <option value="{{ label.id }}">{{ label.text }}</option>
+            {% endfor %}
+        </select>
+        <div id="suggestions-container">
+            <input type="text" class="suggestion-input form-control my-2" placeholder="Type a suggestion" />
+        </div>
+        <button type="button" onclick="addSuggestionInput()">Add Another Suggestion</button>
+        <button id="annotate-btn">Annotate Selection</button>
+        <!-- <select id="label-select" required>
+            {% for label in labels %}
+                <option value="{{ label.id }}">{{ label.text }}</option>
+            {% endfor %}
+        </select>
+        <button id="annotate-btn">Annotate Selection</button> -->
+        {% load annotation_extras %}
+        {% load annotation_extras %}
+        <ul>
+            {% for ann in annotations %}
+                {% with slice=ann.start_offset|stringformat:",%s"|add:ann.end_offset %}
+                <li>
+                    {{ ann.label.text }}: {{ document.text|substr:slice }}
+                </li>
+                {% endwith %}
+            {% endfor %}
+        </ul>
+    </div>
+    <!-- <script>
+        document.getElementById('annotate-btn').onclick = function() {
+            var selection = window.getSelection();
+            var start = selection.anchorOffset;
+            var end = selection.focusOffset;
+            var selectedText = selection.toString();
+            var label_id = document.getElementById('label-select').value;
+            var suggestion = document.getElementById('suggestion-input').value;
+            if (!label_id) {
+                alert("Please select a label.");
+                return;
+            }
+            fetch("", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: `label_id=${label_id}&start=${start}&end=${end}&suggestion=${encodeURIComponent(suggestion)}`
+            }).then(response => response.json()).then(data => {
+                if(data.status === "ok") location.reload();
+            });
+        };
+    </script> -->
+    <script>
+        function addSuggestionInput() {
+            let container = document.getElementById('suggestions-container');
+            let input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'suggestion-input form-control my-2';
+            input.placeholder = 'Type a suggestion';
+            container.appendChild(input);
+        }
+
+        document.getElementById('annotate-btn').onclick = function() {
+            var selection = window.getSelection();
+            var start = selection.anchorOffset;
+            var end = selection.focusOffset;
+            var label_id = document.getElementById('label-select').value;
+            var suggestionInputs = document.querySelectorAll('.suggestion-input');
+            var suggestions = Array.from(suggestionInputs).map(input => input.value);
+            var body = `label_id=${label_id}&start=${start}&end=${end}`;
+            suggestions.forEach(s => {
+                body += `&suggestions[]=${encodeURIComponent(s)}`;
+            });
+            fetch("", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: body
+            }).then(response => response.json()).then(data => {
+                if(data.status === "ok") location.reload();
+            });
+        };
+    </script>
+</body>
+</html>
