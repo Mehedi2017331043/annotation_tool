@@ -176,3 +176,40 @@ def export_annotations_json(request, pk):
     response = HttpResponse(json.dumps(data, indent=2), content_type='application/json')
     response['Content-Disposition'] = f'attachment; filename="annotations_{project.name}.json"'
     return response
+
+
+@login_required
+def annotation_list(request, project_pk):
+    project = get_object_or_404(Project, pk=project_pk)
+    annotations = Annotation.objects.filter(document__project=project).select_related('document', 'label', 'user')
+    return render(request, 'annotation/annotation_list.html', {
+        'project': project,
+        'annotations': annotations
+    })
+    
+
+@login_required
+def annotation_edit(request, annotation_id):
+    annotation = get_object_or_404(Annotation, pk=annotation_id)
+    if request.method == "POST":
+        label_id = request.POST.get("label_id")
+        annotation.label = get_object_or_404(Label, pk=label_id)
+        annotation.start_offset = int(request.POST.get("start_offset"))
+        annotation.end_offset = int(request.POST.get("end_offset"))
+        annotation.suggestions_text = request.POST.get("suggestions_text", "")
+        annotation.save()
+        return redirect('annotation_list', project_pk=annotation.document.project.id)
+    labels = Label.objects.filter(project=annotation.document.project)
+    return render(request, 'annotation/annotation_edit.html', {
+        'annotation': annotation,
+        'labels': labels
+    })
+
+@login_required
+def annotation_delete(request, annotation_id):
+    annotation = get_object_or_404(Annotation, pk=annotation_id)
+    project_pk = annotation.document.project.id
+    if request.method == "POST":
+        annotation.delete()
+        return redirect('annotation_list', project_pk=project_pk)
+    return render(request, 'annotation/annotation_delete_confirm.html', {'annotation': annotation})

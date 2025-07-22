@@ -38,8 +38,9 @@
         </ul>
 
         <h2>Export</h2>
-        <a href="{% url 'export_annotations_csv' project.id %}" class="btn btn-success mx-auto d-block" style="width: 200px;">Export as CSV</a>
-        <a href="{% url 'export_annotations_json' project.id %}" class="btn btn-success mx-auto d-block" style="width: 200px; margin-top: 20px;">Export as JSON</a>
+        <a href="{% url 'annotation_list' project.id %}" class="btn btn-primary mx-auto">Export Dataset</a>
+        <!-- <a href="{% url 'export_annotations_csv' project.id %}" class="btn btn-success mx-auto d-block" style="width: 200px;">Export as CSV</a>
+        <a href="{% url 'export_annotations_json' project.id %}" class="btn btn-success mx-auto d-block" style="width: 200px; margin-top: 20px;">Export as JSON</a> -->
 
         <br><br>
         <a href="{% url 'project_list' %}" class="btn btn-secondary mx-auto d-block" style="width: 200px; margin-top: -20px;">Back to Projects</a>

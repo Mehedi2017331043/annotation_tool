@@ -13,4 +13,7 @@ urlpatterns = [
     path('projects/<int:project_pk>/documents/<int:doc_pk>/annotate/', views.annotate, name='annotate'),
     path('projects/<int:pk>/export/csv/', views.export_annotations_csv, name='export_annotations_csv'),
     path('projects/<int:pk>/export/json/', views.export_annotations_json, name='export_annotations_json'),
+    path('projects/<int:project_pk>/annotations/', views.annotation_list, name='annotation_list'),
+    path('annotations/<int:annotation_id>/edit/', views.annotation_edit, name='annotation_edit'),
+    path('annotations/<int:annotation_id>/delete/', views.annotation_delete, name='annotation_delete'),
 ]
