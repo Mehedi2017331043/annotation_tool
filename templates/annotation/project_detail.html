@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Project Details</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 </head>
 <body>
@@ -13,34 +13,33 @@
 
         <h2>Documents</h2>
         <a href="{% url 'import_documents' project.id %}" class="btn btn-primary mx-auto d-block" style="width: 200px;">Import Documents</a>
-        <ul>
-            {% for doc in documents %}
-                <li>
-                {{ doc.text|truncatechars:50 }}
-                <a href="{% url 'annotate' project.id doc.id %}" class="btn btn-secondary">Annotate</a>
-                </li>
-            {% empty %}
-                <li>No documents yet.</li>
-            {% endfor %}
-        </ul>
-
-        <h2>Labels</h2>
-        <a href="{% url 'add_label' project.id %}" class="btn btn-primary mx-auto d-block" style="width: 200px;">Add Label</a>
-        <ul>
-            {% for label in labels %}
-                <li>
-                <!-- <span{% if label.color %} style="color:{{ label.color }}"{% endif %}>{{ label.text }}</span> -->
-                <span class="{% if label.color %}label-{{ label.color }}{% endif %}">{{ label.text }}</span>
-                </li>
-            {% empty %}
-                <li>No labels yet.</li>
-            {% endfor %}
-        </ul>
+        <table class="table table-bordered mt-3">
+            <thead>
+                <tr>
+                    <th>Document</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doc in documents %}
+                <tr>
+                    <td>{{ doc.text|truncatechars:50 }}</td>
+                    <td>
+                        <a href="{% url 'annotate' project.id doc.id %}"
+                        class="btn {% if doc.id in annotated_doc_ids %}btn-success{% else %}btn-secondary{% endif %}"
+                        style="width: 120px;">Annotate</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="2">No documents yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
         <h2>Export</h2>
         <a href="{% url 'annotation_list' project.id %}" class="btn btn-primary mx-auto">Export Dataset</a>
-        <!-- <a href="{% url 'export_annotations_csv' project.id %}" class="btn btn-success mx-auto d-block" style="width: 200px;">Export as CSV</a>
-        <a href="{% url 'export_annotations_json' project.id %}" class="btn btn-success mx-auto d-block" style="width: 200px; margin-top: 20px;">Export as JSON</a> -->
 
         <br><br>
         <a href="{% url 'project_list' %}" class="btn btn-secondary mx-auto d-block" style="width: 200px; margin-top: -20px;">Back to Projects</a>

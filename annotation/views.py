@@ -10,6 +10,10 @@ from django.contrib.auth import authenticate
 import csv
 import json
 
+
+def home_page(request):
+    return render(request, 'annotation/home.html')
+
 def Login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -24,7 +28,6 @@ def Login(request):
     return render(request, 'registration/login.html')
 
 def Logout(request):
-    # user = User.objects.get(username=request.user.username)
     logout(request)
     return redirect('login')
 
@@ -57,6 +60,28 @@ def project_list(request):
     return render(request, 'annotation/project_list.html', {'projects': projects})
 
 @login_required
+def project_delete(request, pk):
+    project = get_object_or_404(Project, pk=pk)
+    if request.method == 'POST':
+        project.delete()
+        messages.success(request, 'Project deleted successfully.')
+        return redirect('project_list')
+    return render(request, 'annotation/project_delete.html', {'project': project})
+
+@login_required
+def project_edit(request, pk):
+    print(request)
+    project = get_object_or_404(Project, pk=pk)
+    print(project)
+    if request.method == 'POST':
+        project.description = request.POST.get('project_description', '')
+        project.name = request.POST.get('project_name', project.name)
+        project.save()
+        messages.success(request, 'Project updated successfully.')
+        return redirect('project_list')
+    return render(request, 'annotation/project_edit.html', {'project': project})
+
+@login_required
 def project_create(request):
     if request.method == 'POST':
         form = ProjectForm(request.POST)
@@ -74,9 +99,13 @@ def project_create(request):
 def project_detail(request, pk):
     project = get_object_or_404(Project, pk=pk)
     documents = Document.objects.filter(project=project)
+    annotations = Annotation.objects.filter(document__project=project)
     labels = Label.objects.filter(project=project)
+    annotated_doc_ids = set(annotations.values_list('document_id', flat=True))
+    print(annotated_doc_ids)
     return render(request, 'annotation/project_detail.html', {
-        'project': project, 'documents': documents, 'labels': labels
+        'project': project, 'documents': documents, 'labels': labels, 
+        'annotated_doc_ids': annotated_doc_ids,
     })
     
     
@@ -125,7 +154,6 @@ def annotate(request, project_pk, doc_pk):
         end = int(request.POST.get("end"))
         suggestions = request.POST.getlist("suggestions[]")
         label = get_object_or_404(Label, pk=label_id)
-
         annotation = Annotation.objects.create(
             document=document,
             label=label,
@@ -182,9 +210,20 @@ def export_annotations_json(request, pk):
 def annotation_list(request, project_pk):
     project = get_object_or_404(Project, pk=project_pk)
     annotations = Annotation.objects.filter(document__project=project).select_related('document', 'label', 'user')
+    selected_texts = []
+    for ann in annotations:
+        start = ann.start_offset
+        end = ann.end_offset
+        if start > end:
+            tmp = start
+            start = end
+            end = tmp
+        selected_text = ann.document.text[start:end]
+        selected_texts.append(selected_text)
+    annotationsAndSelectedTexts = zip(annotations, selected_texts)
     return render(request, 'annotation/annotation_list.html', {
         'project': project,
-        'annotations': annotations
+        'annotationsAndSelectedTexts': annotationsAndSelectedTexts
     })
     
 
