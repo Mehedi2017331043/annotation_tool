@@ -1,40 +1,40 @@
 {% extends "base.html" %}
 {% block title %}Home | Annotations Tool{% endblock %}
 {% block content %}
-    <div class="container mt-4">
-        <h2>Annotations for Project -> {{ project.name }}</h2>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Document</th>
-                    <th>Label</th>
-                    <th>User</th>
-                    <th>Offsets</th>
-                    <th>SelectedText</th>
-                    <th>Suggestions</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
+<div class="container mt-4">
+    <h2>Annotations for Project -> {{ project.name }}</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Document</th>
+                <th>Label</th>
+                <th>User</th>
+                <th>Offsets</th>
+                <th>SelectedText</th>
+                <th>Suggestions</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
             {% for ann, selected_text in annotationsAndSelectedTexts %}
-                <tr>
-                    <td>{{ ann.id }}</td>
-                    <td>{{ ann.document.text|truncatechars:50 }}</td>
-                    <td>{{ ann.label.text }}</td>
-                    <td>{{ ann.user.username }}</td>
-                    <td>{{ ann.start_offset }} - {{ ann.end_offset }}</td>
-                    <td>{{ selected_text }}</td>
-                    <td>{{ ann.suggestions_text }}</td>
-                    <td>
-                        <a href="{% url 'annotation_edit' ann.id %}" class="btn btn-sm btn-warning">Edit</a>
-                        <a href="{% url 'annotation_delete' ann.id %}" class="btn btn-sm btn-danger">Delete</a>
-                    </td>
-                </tr>
+            <tr>
+                <td>{{ ann.id }}</td>
+                <td>{{ ann.document.text|truncatechars:50 }}</td>
+                <td>{{ ann.label.text }}</td>
+                <td>{{ ann.user.username }}</td>
+                <td>{{ ann.start_offset }} - {{ ann.end_offset }}</td>
+                <td>{{ selected_text }}</td>
+                <td>{{ ann.suggestions_text }}</td>
+                <td>
+                    <a href="{% url 'annotation_edit' ann.id %}" class="btn btn-sm btn-warning">Edit</a>
+                    <a href="{% url 'annotation_delete' ann.id %}" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
             {% endfor %}
-            </tbody>
-        </table>
-        <a href="{% url 'export_annotations_csv' project.id %}" class="btn btn-success">Export CSV</a>
-        <a href="{% url 'export_annotations_json' project.id %}" class="btn btn-info">Export JSON</a>
-    </div>
+        </tbody>
+    </table>
+    <a href="{% url 'export_annotations_csv' project.id %}" class="btn btn-success">Export CSV</a>
+    <a href="{% url 'export_annotations_json' project.id %}" class="btn btn-info">Export JSON</a>
+</div>
 {% endblock %}
