@@ -102,7 +102,6 @@ def project_detail(request, pk):
     annotations = Annotation.objects.filter(document__project=project)
     labels = Label.objects.filter(project=project)
     annotated_doc_ids = set(annotations.values_list('document_id', flat=True))
-    print(annotated_doc_ids)
     return render(request, 'annotation/project_detail.html', {
         'project': project, 'documents': documents, 'labels': labels, 
         'annotated_doc_ids': annotated_doc_ids,
@@ -140,6 +139,31 @@ def add_label(request, pk):
     else:
         form = LabelForm()
     return render(request, 'annotation/add_label.html', {'form': form, 'project': project})
+
+@login_required
+def edit_label(request, label_id):
+    label = get_object_or_404(Label, pk=label_id)
+    
+    if request.method == 'POST':
+        label.text = request.POST.get('label')
+        label.color = request.POST.get('color')
+        label.save()
+        return redirect('project_detail', pk=label.project.id)
+    
+    return render(request, 'annotation/edit_label.html', {
+        'label': label
+    })
+    
+
+@login_required
+def delete_label(request, label_id):
+    label = get_object_or_404(Label, pk=label_id)
+    if request.method == 'POST':
+        label.delete()
+        return redirect('project_detail', label.project.id)
+    return render(request, 'annotation/delete_label.html', {
+        'label': label
+    })
 
 
 @login_required
@@ -233,6 +257,7 @@ def annotation_edit(request, annotation_id):
     if request.method == "POST":
         label_id = request.POST.get("label_id")
         annotation.label = get_object_or_404(Label, pk=label_id)
+        annotation.document = request.POST.get("document")
         annotation.start_offset = int(request.POST.get("start_offset"))
         annotation.end_offset = int(request.POST.get("end_offset"))
         annotation.suggestions_text = request.POST.get("suggestions_text", "")

@@ -36,5 +36,6 @@
     </table>
     <a href="{% url 'export_annotations_csv' project.id %}" class="btn btn-success">Export CSV</a>
     <a href="{% url 'export_annotations_json' project.id %}" class="btn btn-info">Export JSON</a>
+    <a href="{% url 'project_detail' project.id %}" class="btn btn-primary">Back TO Document List</a>
 </div>
 {% endblock %}

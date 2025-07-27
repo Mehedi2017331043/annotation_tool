@@ -19,4 +19,6 @@ urlpatterns = [
     path('projects/<int:project_pk>/annotations/', views.annotation_list, name='annotation_list'),
     path('annotations/<int:annotation_id>/edit/', views.annotation_edit, name='annotation_edit'),
     path('annotations/<int:annotation_id>/delete/', views.annotation_delete, name='annotation_delete'),
+    path('labels/<int:label_id>/edit/', views.edit_label, name='edit_label'),
+    path("labels/<int:label_id>/delete/",views.delete_label, name='delete_label')
 ] 
