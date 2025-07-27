@@ -2,22 +2,20 @@
 {% block title %}Home | Annotations Tool{% endblock %}
 {% block content %}
 <div class="container mt-4">
-    <h2>Edit Annotation #{{ annotation.id }}</h2>
+    <h2>Edit Annotation# {{ annotation.id }}</h2>
     <form method="post">
         {% csrf_token %}
         <div class="mb-3">
+            <label>Document</label>
+            <input type="text" name="document" value="{{annotation.document.text}}" class="form-control">
+        </div>
+        <div class="mb-3">
             <label>Label</label>
-            <select name="label_id" class="form-control">
-                {% for label in labels %}
-                <option value="{{ label.id }}" {% if label==annotation.label %}selected{% endif %}>{{ label.text }}
-                </option>
-                {% endfor %}
-            </select>
+            <input type="text" name="label" value="{{annotation.label.text}}" class="form-control">
         </div>
         <div class="mb-3">
             <label>Start Offset</label>
-            <input type="number" name="start_offset" value="{{ annotation.start_offset }}" class="form-control"
-                required>
+            <input type="number" name="start_offset" value="{{ annotation.start_offset }}" class="form-control"required>
         </div>
         <div class="mb-3">
             <label>End Offset</label>
