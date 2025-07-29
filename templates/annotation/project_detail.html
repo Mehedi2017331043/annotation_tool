@@ -36,6 +36,7 @@
                                 class="btn {% if doc.id in annotated_doc_ids %}btn-success{% else %}btn-outline-secondary{% endif %}">
                                 {% if doc.id in annotated_doc_ids %}Re‑Annotate{% else %}Annotate{% endif %}
                             </a>
+                            <a href="{% url 'delete_document' doc.id %}" class="btn btn-danger">Delete</a>
                         </td>
                     </tr>
                     {% empty %}

@@ -20,5 +20,6 @@ urlpatterns = [
     path('annotations/<int:annotation_id>/edit/', views.annotation_edit, name='annotation_edit'),
     path('annotations/<int:annotation_id>/delete/', views.annotation_delete, name='annotation_delete'),
     path('labels/<int:label_id>/edit/', views.edit_label, name='edit_label'),
-    path("labels/<int:label_id>/delete/",views.delete_label, name='delete_label')
+    path("labels/<int:label_id>/delete/",views.delete_label, name='delete_label'),
+    path("document/<int:document_id>/delete/",views.delete_document, name='delete_document'),
 ] 

@@ -19,7 +19,6 @@ def Login(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
-        print(user)
         if user is not None:
             login(request, user)
             return redirect('project_list')
@@ -70,9 +69,7 @@ def project_delete(request, pk):
 
 @login_required
 def project_edit(request, pk):
-    print(request)
     project = get_object_or_404(Project, pk=pk)
-    print(project)
     if request.method == 'POST':
         project.description = request.POST.get('project_description', '')
         project.name = request.POST.get('project_name', project.name)
@@ -172,30 +169,39 @@ def annotate(request, project_pk, doc_pk):
     document = get_object_or_404(Document, pk=doc_pk, project=project)
     labels = Label.objects.filter(project=project)
     annotations = Annotation.objects.filter(document=document)
+
     if request.method == "POST":
         label_id = request.POST.get("label_id")
-        start = int(request.POST.get("start"))
-        end = int(request.POST.get("end"))
+        content = request.POST.get("content", "")
         suggestions = request.POST.getlist("suggestions[]")
-        label = get_object_or_404(Label, pk=label_id)
-        annotation = Annotation.objects.create(
-            document=document,
-            label=label,
-            start_offset=start,
-            end_offset=end,
-            user=request.user
-        )
-        for suggestion_text in suggestions:
-            Suggestions.objects.create(annotation=annotation, text=suggestion_text)
-        annotation.suggestions_text = suggestions
-        annotation.save()
+        start_offset = int(request.POST.get('start'))
+        end_offset = int(request.POST.get('end'))
+        document.text = content
+        document.save()
+        
+        if label_id:
+            label = get_object_or_404(Label, pk=label_id)
+            annotation = Annotation.objects.create(
+                document=document,
+                label=label,
+                user=request.user,
+                start_offset=start_offset,
+                end_offset=end_offset
+            )
+            for suggestion_text in suggestions:
+                Suggestions.objects.create(annotation=annotation, text=suggestion_text)
+            annotation.suggestions_text = suggestions
+            annotation.save()
+
         return JsonResponse({"status": "ok"})
+
     return render(request, "annotation/annotate.html", {
         "project": project,
         "document": document,
         "labels": labels,
         "annotations": annotations
     })
+
 
     
 @login_required
@@ -277,3 +283,13 @@ def annotation_delete(request, annotation_id):
         annotation.delete()
         return redirect('annotation_list', project_pk=project_pk)
     return render(request, 'annotation/annotation_delete_confirm.html', {'annotation': annotation})
+
+@login_required
+def delete_document(request, document_id):
+    document = get_object_or_404(Document, pk=document_id)
+    if request.method == 'POST':
+        document.delete()
+        return redirect('project_detail', pk=document.project.id)
+    return render(request, 'annotation/delete_document.html', {
+        'project': document.project
+    })
