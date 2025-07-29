@@ -22,4 +22,6 @@ urlpatterns = [
     path('labels/<int:label_id>/edit/', views.edit_label, name='edit_label'),
     path("labels/<int:label_id>/delete/",views.delete_label, name='delete_label'),
     path("document/<int:document_id>/delete/",views.delete_document, name='delete_document'),
+    path("projects/<int:pk>/invite/", views.invite_collaborator, name = 'invite_collaborator'),
+    path("projects/<int:pk>/approve/<int:membership_id>/", views.approve_collaborator, name = "approve_collaborator"),
 ] 

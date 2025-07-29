@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Approve Collaborator{% endblock %}
+
+{% block content %}
+<section class="vh-100 d-flex align-items-center">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card shadow-lg">
+                    <div class="card-header bg-warning text-white text-center py-3">
+                        <h2>Approve Collaborator</h2>
+                    </div>
+                    <div class="card-body p-4">
+                        <p>
+                            You are approving collaborator: <strong>{{ membership.user.username }}</strong><br>
+                            Role: <strong>{{ membership.role }}</strong>
+                        </p>
+                        <form method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success btn-lg w-100">
+                                Approve Collaborator
+                            </button>
+                        </form>
+                        <div class="text-center mt-3">
+                            <a href="{% url 'project_detail' membership.project.pk %}"
+                                class="btn btn-outline-secondary">
+                                ← Back to Project
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

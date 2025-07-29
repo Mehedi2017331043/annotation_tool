@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Project, Document, Label, Annotation, Profile, Suggestions
+from .models import Project, Document, Label, Annotation, Profile, Suggestions, ProjectMembership
 from .forms import ProjectForm, DocumentImportForm, LabelForm
 from django.contrib import messages
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseForbidden
 from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
@@ -34,8 +34,8 @@ def register(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         email = request.POST.get('email')
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
+        first_name = request.POST.get('fname')
+        last_name = request.POST.get('lname')
         password = request.POST.get('pass1')
         new_user = User.objects.create_user(username=username, password=password)
         new_user.email = email
@@ -84,12 +84,19 @@ def project_create(request):
         form = ProjectForm(request.POST)
         if form.is_valid():
             project = form.save()
-            project.users.add(request.user)
+            # Assign the creator as an active admin collaborator:
+            ProjectMembership.objects.create(
+                project=project,
+                user=request.user,
+                role=ProjectMembership.ADMIN,
+                is_active=True
+            )
             messages.success(request, 'Project created successfully.')
             return redirect('project_list')
     else:
         form = ProjectForm()
     return render(request, 'annotation/project_create.html', {'form': form})
+
 
 
 @login_required
@@ -292,4 +299,38 @@ def delete_document(request, document_id):
         return redirect('project_detail', pk=document.project.id)
     return render(request, 'annotation/delete_document.html', {
         'project': document.project
+    })
+    
+@login_required
+def invite_collaborator(request, pk):
+    project = get_object_or_404(Project, pk = pk)
+    if not ProjectMembership.objects.filter(project = project, user = request.user, role = 'admin', is_active = True).exists():
+        return HttpResponseForbidden()
+    if request.method == 'POST':
+        username = request.POST['username']
+        role = request.POST['role']
+        user = User.objects.get(username = username)
+        m, _ = ProjectMembership.objects.update_or_create(
+            project = project,
+            user = user,
+            defaults={'role': role, 'is_active': False}
+        )
+        messages.success(request, f"Invited {username}, awaiting approval.")
+        return redirect('project_detail', pk=pk)
+    return render(request, 'annotation/invite_collaborator.html', {
+        'project': project
+    })
+    
+@login_required
+def approve_collaborator(request, project_pk, membership_id):
+    membership = get_object_or_404(ProjectMembership, pk = membership_id, project__pk = project_pk)
+    if not ProjectMembership.objects.filter(project = project_pk, user = request.user, role = 'admin', is_active = True).exists():
+        return HttpResponseForbidden()
+    if request.method == 'POST':
+        membership.is_active = True
+        membership.save()
+        messages.SUCCESS(request, f"{membership.user.username} is now activate.")
+        return redirect('project_detail', pk = project_pk)
+    return render(request, 'annotation/approve_collaborator.html', {
+        'membership': membership
     })

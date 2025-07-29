@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Login{% endblock %}
+{% block title %}Register{% endblock %}
 {% block content %}
 <div class="d-flex align-items-center justify-content-center" style="min-height: 80vh; background: #f8f9fa;">
     <div class="card shadow p-4" style="max-width: 1000px; border-radius: 10px;">
@@ -40,11 +40,11 @@
                 <div class="mb-3">
 
                 </div>
-                <button type="submit" class="btn btn-primary w-100">Login</button>
+                <button type="submit" class="btn btn-primary w-100">Register</button>
             </form>
             <p class="mt-3 text-center">
                 Don't have an account?
-                <a href="{% url 'register' %}" class="text-decoration-none">Register</a>
+                <a href="{% url 'login' %}" class="text-decoration-none">Login</a>
             </p>
         </div>
     </div>
