@@ -322,15 +322,15 @@ def invite_collaborator(request, pk):
     })
     
 @login_required
-def approve_collaborator(request, project_pk, membership_id):
-    membership = get_object_or_404(ProjectMembership, pk = membership_id, project__pk = project_pk)
-    if not ProjectMembership.objects.filter(project = project_pk, user = request.user, role = 'admin', is_active = True).exists():
+def approve_collaborator(request, pk, membership_id):
+    membership = get_object_or_404(ProjectMembership, pk = membership_id, project__pk = pk)
+    if not ProjectMembership.objects.filter(project = pk, user = request.user, role = 'admin', is_active = True).exists():
         return HttpResponseForbidden()
     if request.method == 'POST':
         membership.is_active = True
         membership.save()
         messages.SUCCESS(request, f"{membership.user.username} is now activate.")
-        return redirect('project_detail', pk = project_pk)
+        return redirect('project_detail', pk = pk)
     return render(request, 'annotation/approve_collaborator.html', {
         'membership': membership
     })
