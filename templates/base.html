@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Annotations Tool{% endblock %}</title>
@@ -8,65 +9,51 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.x/dist/js/bootstrap.bundle.min.js"></script>
 
 </head>
+
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark"
-        style="background-color: rgba(84,235,67,0.67);">
-    <div class="container-fluid">
-        <!-- Brand -->
-        <a class="navbar-brand"
-            href="{% url 'home' %}"
-            style="color: rgb(95,186,243);">
-            Annotations Tool  
-        </a>
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: rgba(84,235,67,0.67);">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'home' %}" style="color: rgb(95,186,243);">
+                Annotations Tool
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+                aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-        <!-- Toggler (hamburger icon) – crucial for collapse -->
-        <button class="navbar-toggler"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarContent"
-                aria-controls="navbarContent"
-                aria-expanded="false"
-                aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <!-- Collapsible content -->
-        <div class="collapse navbar-collapse" id="navbarContent">
-            <ul class="navbar-nav ms-auto">
-            {% if request.user.is_authenticated %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'project_list' %}"
-                        style="color: black;">
-                        Projects
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'logout' %}"
-                        style="color: black;">
-                        Logout
-                    </a>
-                </li>
-            {% else %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'login' %}"
-                        style="color: black;">
-                        Login
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'register' %}"
-                        style="color: black;">
-                        Register
-                    </a>
-                </li>
-            {% endif %}
-            </ul>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarContent">
+                <ul class="navbar-nav">
+                    {% if request.user.is_authenticated %}
+                    <li class="nav-item">
+                        <span class="navbar-text text-dark me-3">
+                            👤 {{ request.user.username }}
+                        </span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'project_list' %}" style="color: black;">
+                            Projects
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}" style="color: black;">
+                            Logout
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'login' %}" style="color: black;">Login</a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'register' %}"
+                            style="color: black;">Register</a></li>
+                    {% endif %}
+                </ul>
+            </div>
         </div>
-    </div>
     </nav>
+
 
     <div class="container mt-4">
         {% block content %}{% endblock %}
     </div>
 </body>
+
 </html>
