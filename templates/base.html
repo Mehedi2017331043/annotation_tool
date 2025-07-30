@@ -22,13 +22,13 @@
             </button>
 
             <div class="collapse navbar-collapse justify-content-end" id="navbarContent">
+                {% if request.user.is_authenticated %}
+                    <div style="color: rgb(95,186,243);">
+                        👤 {{request.user.username}} 
+                    </div>
+                {% endif %}
                 <ul class="navbar-nav">
                     {% if request.user.is_authenticated %}
-                    <li class="nav-item">
-                        <span class="navbar-text text-dark me-3">
-                            👤 {{ request.user.username }}
-                        </span>
-                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'project_list' %}" style="color: black;">
                             Projects
