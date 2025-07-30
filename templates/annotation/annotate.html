@@ -3,28 +3,34 @@
 {% block content %}
 <div class="card" style="width: 800px; margin: 50px auto; padding: 20px;">
     <h1>Annotate Document</h1>
-    <p id="doc-text">{{ document.text }}</p>
+    <p id="doc-text">{{ document.text|safe }}</p>
+
     <select id="label-select" required>
         {% for label in labels %}
-        <option value="{{ label.id }}">{{ label.text }}</option>
+        <option value="{{ label.id }}" data-color="{{ label.color }}" style="color: '{{ label.color }};'">
+            {{ label.text }}
+        </option>
         {% endfor %}
     </select>
+
     <div id="suggestions-container">
         <input type="text" class="suggestion-input form-control my-2" placeholder="Type a suggestion" />
     </div>
     <button type="button" onclick="addSuggestionInput()">Add Another Suggestion</button>
-    <button id="annotate-btn">Annotate Selection</button>
+    <button id="annotate-btn" type="button">Annotate Selection</button>
+
     {% load annotation_extras %}
     <ul>
         {% for ann in annotations %}
-            <li>
-                {{ann.label.text}}: {{ann.document.text|truncatechars:50}} {{ann.suggestions_text}}
-                <a href="{% url 'annotation_edit' ann.id %}" class="btn btn-warning">Edit</a>
-                <a href="{% url 'annotation_delete' ann.id %}" class="btn btn-danger">Delete</a>
-            </li>
+        <li>
+            {{ann.label.text}}: {{ann.document.text|truncatechars:50}} {{ann.suggestions_text}}
+            <a href="{% url 'annotation_edit' ann.id %}" class="btn btn-warning">Edit</a>
+            <a href="{% url 'annotation_delete' ann.id %}" class="btn btn-danger">Delete</a>
+        </li>
         {% endfor %}
     </ul>
 </div>
+
 <script>
     function addSuggestionInput() {
         let container = document.getElementById('suggestions-container');
@@ -36,26 +42,29 @@
     }
 
     document.getElementById('annotate-btn').onclick = function () {
-        var selection = window.getSelection();
-        var start = selection.anchorOffset;
-        var end = selection.focusOffset;
-        var label_id = document.getElementById('label-select').value;
-        var suggestionInputs = document.querySelectorAll('.suggestion-input');
-        var suggestions = Array.from(suggestionInputs).map(input => input.value);
-        var body = `label_id=${label_id}&start=${start}&end=${end}`;
-        suggestions.forEach(s => {
-            body += `&suggestions[]=${encodeURIComponent(s)}`;
-        });
-        fetch("", {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": "{{ csrf_token }}",
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
-            body: body
-        }).then(response => response.json()).then(data => {
-            if (data.status === "ok") location.reload();
-        });
+            var selection = window.getSelection();
+            var container = document.getElementById('doc-text')
+            container.style.userSelect = 'text'
+            var select = document.getElementById('label-select')
+            var content = container.innerHTML;
+            var label_id = select.value;
+            var suggestionInputs = document.querySelectorAll('.suggestion-input');
+            var start = selection.anchorOffset;
+            var end = selection.focusOffset;
+            var body = `label_id=${label_id}&start=${start}&end=${end}&content=${encodeURIComponent(content)}`;
+            suggestionInputs.forEach(input =>
+                body += `&suggestions[]=${encodeURIComponent(input.value)}`);
+            fetch("", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: body
+            }).then(res => res.json()).then(data => {
+                if (data.status === "ok") location.reload();
+                else alert("Save error");
+            });
     };
 </script>
 {% endblock %}
