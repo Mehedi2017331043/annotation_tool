@@ -51,6 +51,7 @@
         </div>
     </div>
 
+    <!-- Add label section -->
     <div class="card shadow-sm mb-4">
         <h2 class="text-center">Labels</h2>
         <a href="{% url 'add_label' project.id %}" class="btn btn-primary mx-auto d-block"
@@ -81,10 +82,44 @@
             </tbody>
         </table>
     </div>
+    <!-- Add Collaborator -->
+    <div class="card shadow-sm mb-4">
+        <h2 class="text-center">Collaborators</h2>
+        <a href="{% url 'invite_collaborator' project.id %}" class="btn btn-primary mx-auto d-block"
+            style="width: 200px; margin-bottom: 20px;">Add Collaborator</a>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>Activate Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for collaborator in collaborators %}
+                <tr>
+                    <td>{{ collaborator.user }}</td>
+                    <td>{{ collaborator.role }}</td>
+                    <td>{{ collaborator.is_active }}</td>
+                    {% if collaborator.role != 'admin' %}
+                    <td class="text-end">
+                        <a href="{% url 'delete_collaborator' collaborator.project.id collaborator.id %}" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                    {%endif%}
+                </tr>
+                {% empty %}
+                <tr>
+                    <td>No collaborator added yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
     <!-- Export & Navigation -->
     <div class="d-grid gap-3 d-md-flex justify-content-md-end">
         <a href="{% url 'annotation_list' project.id %}" class="btn btn-success">Export Dataset</a>
-        <a href="{% url 'project_list' %}" class="btn btn-secondary">Back to Projects</a>
+        <a href="{% url 'project_list' %}" class="btn btn-secondary">← Back to Projects</a>
     </div>
 </div>
 {% endblock %}

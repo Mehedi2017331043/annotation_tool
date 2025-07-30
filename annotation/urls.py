@@ -24,4 +24,5 @@ urlpatterns = [
     path("document/<int:document_id>/delete/",views.delete_document, name='delete_document'),
     path("projects/<int:pk>/invite/", views.invite_collaborator, name = 'invite_collaborator'),
     path("projects/<int:pk>/approve/<int:membership_id>/", views.approve_collaborator, name = "approve_collaborator"),
+    path("projects/<int:pk>/delete/<int:membership_id>/", views.delete_collaborator, name = "delete_collaborator"),
 ] 

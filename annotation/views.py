@@ -105,9 +105,13 @@ def project_detail(request, pk):
     documents = Document.objects.filter(project=project)
     annotations = Annotation.objects.filter(document__project=project)
     labels = Label.objects.filter(project=project)
+    collaborators = ProjectMembership.objects.filter(project=project)
     annotated_doc_ids = set(annotations.values_list('document_id', flat=True))
     return render(request, 'annotation/project_detail.html', {
-        'project': project, 'documents': documents, 'labels': labels, 
+        'project': project, 
+        'documents': documents, 
+        'labels': labels, 
+        'collaborators': collaborators,
         'annotated_doc_ids': annotated_doc_ids,
     })
     
@@ -310,13 +314,13 @@ def invite_collaborator(request, pk):
         username = request.POST['username']
         role = request.POST['role']
         user = User.objects.get(username = username)
-        m, _ = ProjectMembership.objects.update_or_create(
+        collaborator_username, _ = ProjectMembership.objects.update_or_create(
             project = project,
             user = user,
             defaults={'role': role, 'is_active': False}
         )
-        messages.success(request, f"Invited {username}, awaiting approval.")
-        return redirect('project_detail', pk=pk)
+        messages.success(request, f"Invited {username}, awaiting for approval.")
+        return redirect('approve_collaborator', pk=pk, membership_id=collaborator_username.id)
     return render(request, 'annotation/invite_collaborator.html', {
         'project': project
     })
@@ -329,8 +333,18 @@ def approve_collaborator(request, pk, membership_id):
     if request.method == 'POST':
         membership.is_active = True
         membership.save()
-        messages.SUCCESS(request, f"{membership.user.username} is now activate.")
+        messages.success(request, f"{membership.user} is now activate.")
         return redirect('project_detail', pk = pk)
     return render(request, 'annotation/approve_collaborator.html', {
         'membership': membership
+    })
+    
+@login_required
+def delete_collaborator(request, pk, membership_id):
+    collaborator = get_object_or_404(ProjectMembership, pk = membership_id, project__id = pk)
+    if request.method == 'POST':
+        collaborator.delete()
+        return redirect('project_detail', pk=pk)
+    return render(request, 'annotation/delete_collaborator.html', {
+        'collaborator': collaborator
     })
